@@ -1,0 +1,12 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: ./docker/app/Dockerfile
+    ports:
+      - "${REST_API_PORT}:${REST_API_PORT}"
+    volumes:
+      - database-storage:/var/www/app/database
+
+volumes:
+  database-storage:

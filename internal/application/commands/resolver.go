@@ -110,7 +110,7 @@ func (reslv Resolver) Resolve(chatId int64, username string, text string) *tgbot
 			resolved = true
 		case "/subscibed_yes":
 			// @TODO
-			isSubscribed, err := helpers.CheckUserSubscription(reslv.Bot, "@test_test_auto", chatId)
+			isSubscribed, err := helpers.CheckUserSubscription(reslv.Bot, "@automorevlad", chatId)
 			if err != nil {
 				log.Printf("error while trying to check subscription %s", err)
 				msgType = "error"

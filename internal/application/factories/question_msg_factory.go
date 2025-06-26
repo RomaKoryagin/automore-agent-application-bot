@@ -17,6 +17,7 @@ func (fact QuestionMsgFactory) Create(question *models.Question) *tgbotapi.Messa
 
 	text := "<b>Получен вопрос от пользователя</b>"
 	text += fmt.Sprintf("\nTelegram ID пользовтеля: @%s ", question.TelegramId)
+	text += fmt.Sprintf("\nНомер телефона пользователя: %s ", question.Phone.String)
 	text += fmt.Sprintf("\nВопрос пользователя: %s ", question.Text.String)
 
 	button := tgbotapi.NewInlineKeyboardButtonURL("Перейти к диалогу в TG", fmt.Sprintf("https://t.me/%s", question.TelegramId))

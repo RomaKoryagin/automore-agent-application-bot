@@ -19,20 +19,46 @@ type Resolver struct {
 }
 
 func (reslv Resolver) Resolve(chatId int64, username string, text string) *tgbotapi.MessageConfig {
-	question, err := reslv.QuestionRepo.GetLastWithEmptyText(chatId)
+	question, err := reslv.QuestionRepo.GetLastWithEmptyTextOrPhone(chatId)
 	if err != nil {
 		log.Printf("error while trying to get last user question, more: %s", err)
 		return nil
 	}
-	log.Println(question)
+
 	if question != nil {
-		reslv.QuestionRepo.UpdateText(chatId, text)
-		if reslv.MsgContainer != nil {
-			rMsg := (*reslv.MsgContainer).Messages["question_success"]
-			msg := reslv.MsgFactory.Create(rMsg, chatId)
-			return msg
-		} else {
-			return nil
+		if question.Text.String == "" {
+			reslv.QuestionRepo.UpdateText(chatId, text)
+
+			if reslv.MsgContainer != nil {
+				rMsg := (*reslv.MsgContainer).Messages["question_phone"]
+				msg := reslv.MsgFactory.Create(rMsg, chatId)
+				return msg
+			} else {
+				return nil
+			}
+		}
+
+		if question.Phone.String == "" {
+			isValid := helpers.IsPhoneValid(text)
+			if !isValid {
+				if reslv.MsgContainer != nil {
+					rMsg := (*reslv.MsgContainer).Messages["invalid_phone"]
+					msg := reslv.MsgFactory.Create(rMsg, chatId)
+					return msg
+				} else {
+					return nil
+				}
+			}
+
+			reslv.QuestionRepo.UpdatePhone(chatId, text)
+
+			if reslv.MsgContainer != nil {
+				rMsg := (*reslv.MsgContainer).Messages["question_success"]
+				msg := reslv.MsgFactory.Create(rMsg, chatId)
+				return msg
+			} else {
+				return nil
+			}
 		}
 	}
 
@@ -63,7 +89,6 @@ func (reslv Resolver) Resolve(chatId int64, username string, text string) *tgbot
 			msgType = "gretting"
 		}
 	}
-	log.Printf("type is : %s", msgType)
 	if msgType == "" {
 		resolved := false
 		switch text {
